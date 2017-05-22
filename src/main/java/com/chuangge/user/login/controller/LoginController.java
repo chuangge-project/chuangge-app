@@ -1,5 +1,7 @@
 package com.chuangge.user.login.controller;
 
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 import org.slf4j.Logger;
@@ -12,7 +14,9 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import com.alibaba.fastjson.JSONObject;
 import com.chuangge.redis.util.RedisUtils;
 import com.chuangge.user.common.util.Jsonp;
+import com.chuangge.user.model.domain.Test;
 import com.chuangge.user.service.SmsSendService;
+import com.chuangge.user.service.TestService;
 
 @Controller
 public class LoginController {
@@ -21,6 +25,9 @@ public class LoginController {
 	
 	@Autowired
 	private SmsSendService smsSendService;
+	
+	@Autowired
+	private TestService testService;
 	
 	
 	/*****
@@ -57,12 +64,22 @@ public class LoginController {
 		RedisUtils.opsForValue().set("getVerifyCode"+mobile,code+"",5,TimeUnit.MINUTES);
 		System.out.println(RedisUtils.opsForValue().get("getVerifyCode"+mobile));
 		
+		Test test = new Test();
+		test.setName("测试");
+		JSONObject retJson = testService.insert(test);
+		System.out.println(retJson);
+		
+		Map map = new HashMap();
+		map.put("id", 3);
+		retJson = testService.selectByPrimaryKey(map);
+		System.out.println(retJson);
+		
 		JSONObject param = new JSONObject();
 		param.put("code", code+"");
 		logger.info("发送短信mobile="+mobile+";code="+code);
-		JSONObject json =  smsSendService.sendSms(mobile, param.toJSONString());
-		logger.info("发送短信returnJson"+json.toString());
-		return json;
+//		JSONObject json =  smsSendService.sendSms(mobile, param.toJSONString());
+//		logger.info("发送短信returnJson"+json.toString());
+		return retJson;
 	}
 	
 	
